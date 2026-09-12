@@ -1,0 +1,14 @@
+assets/fishlogo-path.txt
+assets/*.ico
+assets/png/
+assets/deepseek-whale-official.svg
+assets/deepseek-whale-mark.svg
+.gh-token
+*.token
+logs/
+node_modules/
+dist/
+build/dsh-desktop.exe
+build/dsh-desktop.exe.meta.json
+*.exe
+launch-config.json
