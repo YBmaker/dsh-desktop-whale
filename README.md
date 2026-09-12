@@ -120,15 +120,7 @@ powershell -ExecutionPolicy Bypass -File uninstall-from-dsh.ps1
 
 **唯一例外（已确认保留）**：`plugin/dsh-whale-widget/lib/client.js` 内联了一段 3448 字符的
 官方 `FISH_LOGO_PATH`（鲸鱼图形本身），已逐字节核验等于 DSH 官方前端 bundle 里的同名常量。
-它让挂件无需额外素材即可渲染鲸鱼，属产品品牌素材，**不含任何个人信息**。
-
-> 若你的场景要求仓库内"一个来自本机的字节都不能有"，可改为由 Host 路由 `/whale/mark`
-> 在运行时下发该路径，再跑 `build/build-plugin.cjs` 重新生成 `lib/`。模板
-> `src/client.js.tpl` 用的就是占位符 `__WHALE_PATH__`，改造点集中在一处。
-
-**发布前必须跑 `build/publish.ps1`**：它内含隐私门禁（12 条通用规则 + 你的机器专属规则），
-未通过会**中止打包与推送**（exit 2），除非显式 `-SkipPrivacyScan`。
-
+它让挂件无需额外素材即可渲染鲸鱼，属产品品牌素材。
 ## 依赖
 
 - Windows（启动入口与 `.ico` 部分）；插件本身跨平台。
