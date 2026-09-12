@@ -1,0 +1,35 @@
+MIT License
+
+Copyright (c) 2026 dsh-desktop-whale contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+## 关于鲸鱼图形
+
+本仓库内的鲸鱼图形（`assets/deepseek-whale*.ico|svg|png`）**不是自绘**，而是取自
+DeepSeek Harness 官方发行物，仅用于为 DSH 生成桌面图标与界面挂件：
+
+- 来源标记：`@deepseek-ai/dsh-client-ui-brand-official` 渲染的 `FishLogo`
+  （其 JSDoc 写明 "the official whale mark"）；
+- 路径常量：DSH 前端 bundle 中的 `FISH_LOGO_PATH`（viewBox `23.16 × 17.04`）；
+- 一致性：官方 `dist/favicon.svg` 与该常量的形状 IoU ≈ 0.976（见 `build/provenance-check.cjs`）。
+
+DeepSeek 名称与鲸鱼标识归其权利人所有；本仓库对其的使用仅限于本地自用与兼容目的。

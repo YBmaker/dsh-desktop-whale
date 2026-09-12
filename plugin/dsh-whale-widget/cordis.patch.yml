@@ -1,0 +1,9 @@
+# dsh-whale-widget bundle patch —— 把鲸鱼挂件行插进 web profile 的插件花名册。
+#
+# 该行是一个"双面"插件：node 半边（exports "."）在 Host 进程里注册只读路由
+#   GET /whale/billing   -> 转发本机 /api/billing（余额 / token 用量 / 估算花费）
+# 浏览器半边由 package.json 的 dsh.client 声明驱动，dsh-client-modules 会把它作为
+#   /plugins/dsh-whale-widget/client.js  提供，并在页面里加载。
+- insert:
+    - id: whale-widget
+      name: 'dsh-whale-widget'
