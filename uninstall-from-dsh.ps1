@@ -62,7 +62,7 @@ if (Test-Path $hostDir) {
 }
 
 Write-Output ''
-Write-Output '还需手动处理（脚本不动你的桌面）：'
+Write-Output '还需手动处理（脚本不修改桌面）：'
 Write-Output "  1) 删除桌面快捷方式: $([Environment]::GetFolderPath('Desktop'))\DeepSeek Harness.lnk"
 Write-Output "  2) 若要连本工具目录一起清理，可删除: $ws"
 Write-Output '  3) 重启 DSH 使插件行卸载生效'

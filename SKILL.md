@@ -15,7 +15,7 @@ whenToUse: 用户想要"桌面入口 / 桌面快捷方式 / 双击启动 DSH / �
    IP（`WEB_BLOCKED_URL`），Client 侧动态沙箱里没有 `fetch` builtin。所以挂件**必须做成
    持久化的真实插件**（`profiles/<name>/node_modules/<pkg>` + `cordis.patch.yml` 一行），
    让浏览器半边用普通浏览器 `fetch('/api/billing')` 取同源数据。别在动态插件上耗时间。
-2. **`dsh` 很可能不在用户的持久 PATH 里。** 你在 DSH 会话里能 `Get-Command dsh`，是因为
+2. **`dsh` 很可能不在用户的持久 PATH 里。** 在 DSH 会话里能 `Get-Command dsh`，是因为
    会话继承了 DSH 进程的环境；桌面双击启动的进程看到的是**用户/机器持久 PATH**，那里
    往往没有 `dsh`。启动入口必须自己**发现运行时**（本 skill 的 `launch-dsh.ps1` 已实现）。
 3. **`.ps1` 必须带 UTF-8 BOM。** Windows PowerShell 5.1 对无 BOM 的脚本按 ANSI(GBK) 解析，
@@ -63,7 +63,7 @@ Invoke-WebRequest http://127.0.0.1:3080/api/desktop -UseBasicParsing
 ```
 
 注意：**别用 `Invoke-WebRequest http://127.0.0.1:3080` 判断服务在不在**——首页对非浏览器请求
-返回 **401**，PS 会抛异常，你会误判成"没在跑"。用 TCP 连接判断。
+返回 **401**，PS 会抛异常，容易被误判成"没在跑"。用 TCP 连接判断。
 
 ### 第 1 步：拿官方鲸鱼图形并生成 .ico
 

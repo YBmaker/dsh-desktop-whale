@@ -40,7 +40,7 @@ showing account balance and token usage — packaged as a reusable DSH Skill.
                └──────────────────────────┘
 ```
 
-## 安全：不碰你的 API Key
+## 安全：不接触 API Key
 
 ```
 挂件（浏览器）─fetch('/whale/billing')→ 插件 Host 半边
@@ -102,7 +102,7 @@ powershell -ExecutionPolicy Bypass -File uninstall-from-dsh.ps1
 
 1. **动态 Cordis 插件读不到本机路由** —— Host 侧 `web.fetch` 拒绝非公网 IP
    (`WEB_BLOCKED_URL`)，Client 侧动态沙箱没有 `fetch`。所以挂件必须是**持久化真实插件**。
-2. **`dsh` 常常不在用户的持久 PATH 里** —— 你能在 DSH 会话里找到它，是因为继承了 DSH 进程的
+2. **`dsh` 常常不在用户的持久 PATH 里** —— 在 DSH 会话里能找到它，是因为继承了 DSH 进程的
    环境；桌面双击的进程看不到。启动入口必须自己发现运行时。
 3. **`.ps1` 必须带 UTF-8 BOM** —— 否则 Windows PowerShell 5.1 按 GBK 解析，中文直接变语法错误。
 
