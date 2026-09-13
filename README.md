@@ -88,7 +88,7 @@ powershell -ExecutionPolicy Bypass -File uninstall-from-dsh.ps1
 | 路径 | 说明 |
 |---|---|
 | `SKILL.md` | **Skill 入口**：完整流程、硬约束、排障速查 |
-| `references/pitfalls.md` | 10 个踩过的坑与根因（最值钱的一页） |
+| `references/pitfalls.md` | 11 个踩过的坑与根因（最值钱的一页） |
 | `references/architecture.md` | 数据链路、插件双半边、Slot/样式、启动行为矩阵 |
 | `references/verification.md` | 可复制的验证命令与判据 |
 | `launch-dsh.ps1` | 启动逻辑：发现运行时 → 探活 → 打开界面 |
@@ -98,13 +98,15 @@ powershell -ExecutionPolicy Bypass -File uninstall-from-dsh.ps1
 | `plugin/dsh-whale-widget/` | 挂件插件包（Host + 浏览器双半边） |
 | `assets/` | 官方鲸鱼路径、官方 svg、生成好的 ico/png |
 
-## 三个最关键的约束
+## 四个最关键的约束
 
 1. **动态 Cordis 插件读不到本机路由** —— Host 侧 `web.fetch` 拒绝非公网 IP
    (`WEB_BLOCKED_URL`)，Client 侧动态沙箱没有 `fetch`。所以挂件必须是**持久化真实插件**。
 2. **`dsh` 常常不在用户的持久 PATH 里** —— 在 DSH 会话里能找到它，是因为继承了 DSH 进程的
    环境；桌面双击的进程看不到。启动入口必须自己发现运行时。
 3. **`.ps1` 必须带 UTF-8 BOM** —— 否则 Windows PowerShell 5.1 按 GBK 解析，中文直接变语法错误。
+4. **pnpm store 运行时需要 `--expose-internals`** —— 否则 Cordis loader 会从缓存包自身位置
+   解析插件，冷启动时可能集中出现几十到上百个 `ERR_MODULE_NOT_FOUND`。
 
 （每条都有可复现现象与修法，见 `references/pitfalls.md`。）
 

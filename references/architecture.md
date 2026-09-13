@@ -97,13 +97,15 @@ exports.inject = ['slots'];   // 硬依赖
 TCP 探活 port
  ├─ 在跑  → 按 openMode 开浏览器 / 拉起桌面窗口（绝不重复起进程）
  └─ 没在跑 → 发现运行时 → Start-Process 隐藏窗口跑
-             `node <bin.js> web --no-open --port <port>`（或 `dsh web ...`）
+             `node --expose-internals <bin.js> web --no-open --port <port>`（或 `dsh web ...`）
              → 轮询 TCP 最长 120s → 就绪后按 openMode 打开
 ```
 
 细节：
 
 - 用 `--no-open` 后再由脚本统一打开浏览器，保证"只开一个标签页"且行为确定。
+- 直接执行 pnpm store 中的 `bin.js` 时加入 `--expose-internals`，让 Cordis loader 以 profile
+  为解析基准；否则严格隔离布局会把已安装插件误报为 `ERR_MODULE_NOT_FOUND`。
 - `--no-open`、`--port` 都是 `dsh-web-app` 声明过的真实参数（`lib/startup.js`）。
 - 服务端 stdout/stderr 重定向到 `logs\dsh-web-server.log` / `.err.log`，便于排障。
 - 任何失败都**弹可见提示框**（`WScript.Shell.Popup`），而不是在最小化窗口里 `Read-Host`

@@ -48,7 +48,8 @@ Python、WindowsApps、`%APPDATA%\npm` 三类目录；机器 PATH 只有 Windows
 2. `DSH_RUNTIME_DIR`；
 3. PATH 里的 `dsh`；
 4. pnpm store：`%LOCALAPPDATA%\pnpm\store\v11\links\@deepseek-ai\dsh\<ver>\<hash>\`，
-   取 `node_modules\@deepseek-ai\dsh\lib\bin.js`，用 `node <bin.js>` 跑；
+   取 `node_modules\@deepseek-ai\dsh\lib\bin.js`，用
+   `node --expose-internals <bin.js>` 跑；
 5. pnpm dlx 缓存里的 `dsh.CMD`；
 6. `%APPDATA%\npm\dsh.cmd`。
 
@@ -58,7 +59,34 @@ Python、WindowsApps、`%APPDATA%\npm` 三类目录；机器 PATH 只有 Windows
 
 ---
 
-## 3. 用 HTTP 探活会被 401 骗到
+## 3. pnpm store 直启缺少 `--expose-internals` 会让插件树整体崩溃
+
+**现象**：桌面入口能找到 Node 和 `dsh/lib/bin.js`，但冷启动后 3080 始终没有监听；
+`dsh-web-server.err.log` 同时出现几十到上百条错误：
+
+```
+ERR_MODULE_NOT_FOUND
+Cannot find package '@deepseek-ai/cordis-plugin-timer' imported from .../cordis-plugin-loader/lib/index.js
+Cannot find package '@deepseek-ai/dsh-client-ui-...' imported from .../cordis-plugin-loader/lib/index.js
+```
+
+**根因**：pnpm 的 store-links 是严格隔离布局。直接用 Node 执行缓存中的 `bin.js` 时，
+`cordis-plugin-loader` 获取不到 Node 内部 ESM loader，裸包名导入退化为从 loader 自身的
+store 路径解析，因此看不到 Web profile 已准备的插件集合。服务已运行时入口只负责开浏览器，
+所以这个问题通常到下一次冷启动才暴露。
+
+**正确做法**：直接执行 `bin.js` 时显式传入：
+
+```powershell
+node --expose-internals <dsh-bin.js> web --no-open --port 3080
+```
+
+判据是端口在规定时间内开始监听，并且本次新增的 stderr 中不再出现成批
+`ERR_MODULE_NOT_FOUND`。不要靠逐个安装报错中的上百个插件来修补依赖树。
+
+---
+
+## 4. 用 HTTP 探活会被 401 骗到
 
 **现象**：服务明明在跑，启动脚本却认为"没在跑"，于是又去起第二个实例。
 
@@ -79,7 +107,7 @@ $client.Close()
 
 ---
 
-## 4. `.ps1` 没有 UTF-8 BOM → 中文变语法错误
+## 5. `.ps1` 没有 UTF-8 BOM → 中文变语法错误
 
 **现象**：
 
@@ -105,7 +133,7 @@ $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
 
 ---
 
-## 5. 块注释里的 `*/` 会截断注释
+## 6. 块注释里的 `*/` 会截断注释
 
 **现象**：Node 报 `SyntaxError: Unexpected identifier`，指向一行看起来完全正常的注释。
 
@@ -122,7 +150,7 @@ $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
 
 ---
 
-## 6. 手工装的 junction 会被 `dsh plugin` 清掉
+## 7. 手工装的 junction 会被 `dsh plugin` 清掉
 
 **现象**：挂件突然消失，`node_modules\<pkg>` 不见了。
 
@@ -134,7 +162,7 @@ $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
 
 ---
 
-## 7. 改了插件不需要重启 DSH
+## 8. 改了插件不需要重启 DSH
 
 **现象**：以为要重启 DSH 才能让挂件生效，于是中断了用户正在用的服务。
 
@@ -146,7 +174,7 @@ $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
 
 ---
 
-## 8. `GET /plugins/<pkg>/client.js` 404 是正常的
+## 9. `GET /plugins/<pkg>/client.js` 404 是正常的
 
 **现象**：探测客户端 bundle 一律 404，连官方插件也 404 → 容易误判成"没注册成功"。
 
@@ -168,7 +196,7 @@ ctx.get('webServer').collectIndexInjections()  // 首页真实注入行（含合
 
 ---
 
-## 9. 图标来源必须能自证
+## 10. 图标来源必须能自证
 
 **现象**：随便找个鲸鱼 png 当图标，交付时无法说明来源与许可。
 
@@ -185,7 +213,7 @@ ctx.get('webServer').collectIndexInjections()  // 首页真实注入行（含合
 
 ---
 
-## 10. 桌面宿主抓取失败不等于网络不通
+## 11. 桌面宿主抓取失败不等于网络不通
 
 **现象**：`/api/desktop` 返回
 

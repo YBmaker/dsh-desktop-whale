@@ -119,6 +119,9 @@ return {
 ## 4. 启动入口：行为与回归
 
 ```powershell
+# 静态契约：从缓存 bin.js 直启时必须带 Node 内部加载器参数
+Select-String '<root>\launch-dsh.ps1' -SimpleMatch '--expose-internals'
+
 # 直接按"双击"的方式跑（服务在跑时应只开浏览器，exit=0）
 & cmd.exe /c '"<root>\启动 DeepSeek Harness.cmd"'
 "exit=$LASTEXITCODE"
@@ -131,7 +134,9 @@ Get-Content '<root>\launch-config.json' -Raw    # runtimeDir / nodePath 应被�
 ```
 
 冷启动路径（服务没在跑）只能这样验：先把 DSH 全部退出，再双击入口，然后看
-`logs\dsh-web-server.err.log` 与 `logs\dsh-web.log`。
+`logs\dsh-web-server.err.log` 与 `logs\dsh-web.log`。期望启动日志中的 `spawning:` 行包含
+`--expose-internals`，端口在 120 秒内就绪，而且本次新增的 stderr 中没有成批
+`ERR_MODULE_NOT_FOUND`。首页被非浏览器请求返回 401 不代表启动失败，仍以 TCP 监听为准。
 
 ## 5. 持久性：重启之后
 

@@ -1,6 +1,9 @@
 ﻿# launch-dsh.ps1 —— DeepSeek Harness 桌面启动入口的真正逻辑
 #
-# 修复记录（v2）：
+# 修复记录（v3）：
+#   * pnpm 的严格隔离布局会让 cordis-plugin-loader 从 store 自身路径解析裸包名，
+#     继而把 profile 中实际存在的插件误报为 ERR_MODULE_NOT_FOUND。直接调用 bin.js 时
+#     给 Node 加 --expose-internals，让 DSH 的内部加载器按 profile baseUrl 解析插件。
 #   * 旧版用 `Get-Command dsh` 找启动命令 —— 但用户的持久 PATH 里没有 dsh
 #     （用户 PATH 只有 Python / WindowsApps / %APPDATA%\npm），双击必定失败。
 #     现在改为：配置记忆 → DSH_RUNTIME_DIR → PATH → pnpm store（最新）→ dlx → npm 全局。
@@ -217,7 +220,10 @@ if (-not $running) {
         $cfg.nodePath = $node
         Save-Config $cfg
         $exe = $node
-        $argStr = '"{0}" web --no-open --port {1}' -f $rt.bin, $port
+        # DSH 的 cordis loader 需要 Node 内部 ESM loader，才能从 profile 根目录解析
+        # 动态插件。pnpm store 的严格隔离布局下若缺少此参数，会一次性出现大量
+        # ERR_MODULE_NOT_FOUND（常见为 cordis-plugin-timer / dsh-client-ui-*）。
+        $argStr = '--expose-internals "{0}" web --no-open --port {1}' -f $rt.bin, $port
     } else {
         $exe = 'cmd.exe'
         $argStr = '/c "{0}" web --no-open --port {1}' -f $rt.cmd, $port

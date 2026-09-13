@@ -1,7 +1,6 @@
 ---
 name: dsh-desktop-whale
-description: 给 DeepSeek Harness (DSH) 加两样东西：桌面上双击即启动的入口（DeepSeek 官方大鲸鱼图标），以及界面右下角常驻的小鲸鱼挂件（点击显示 DeepSeek 账户余额与 token 用量）。也适用于单独排障：桌面快捷方式双击没反应、启动入口报"找不到 dsh 命令"、挂件不出现或显示"暂不可用"、桌面宿主 dsh-desktop.exe 装不上、需要把官方鲸鱼标记做成 .ico。Add a desktop launcher with the official DeepSeek whale icon and a floating whale widget showing account balance to a DSH installation, or troubleshoot an existing one.
-whenToUse: 用户想要"桌面入口 / 桌面快捷方式 / 双击启动 DSH / 大鲸鱼图标 / 小鲸鱼挂件 / 看余额 / 看 token 剩余 / 桌面端"，或者上述东西坏掉需要排查时使用。
+description: 给 DeepSeek Harness (DSH) 加两样东西：桌面上双击即启动的入口（DeepSeek 官方大鲸鱼图标），以及界面右下角常驻的小鲸鱼挂件（点击显示 DeepSeek 账户余额与 token 用量）。用户想要桌面入口、桌面快捷方式、双击启动 DSH、大鲸鱼图标、小鲸鱼挂件、查看余额或 token 剩余、配置桌面端时使用；也适用于单独排障：桌面快捷方式双击没反应、启动入口报"找不到 dsh 命令"、pnpm store 直启时成批出现 ERR_MODULE_NOT_FOUND、挂件不出现或显示"暂不可用"、桌面宿主 dsh-desktop.exe 装不上、需要把官方鲸鱼标记做成 .ico。Add a desktop launcher with the official DeepSeek whale icon and a floating whale widget showing account balance to a DSH installation, or troubleshoot an existing one.
 ---
 
 # DSH 桌面入口 + 鲸鱼挂件
@@ -9,7 +8,7 @@ whenToUse: 用户想要"桌面入口 / 桌面快捷方式 / 双击启动 DSH / �
 把一个 DSH 安装变成"桌面上有图标、界面里有挂件"的形态。全部产物落在一个自包含目录里，
 对 DSH 的侵入只有 3 处，可用一个脚本完整回滚。
 
-## 先读这一条：三个会让人白干半天的约束
+## 先读这一条：四个会让人白干半天的约束
 
 1. **动态 Cordis 插件永远无法读本机路由。** Host 侧 `ctx.get('web').fetch()` 会拒绝非公网
    IP（`WEB_BLOCKED_URL`），Client 侧动态沙箱里没有 `fetch` builtin。所以挂件**必须做成
@@ -20,6 +19,9 @@ whenToUse: 用户想要"桌面入口 / 桌面快捷方式 / 双击启动 DSH / �
    往往没有 `dsh`。启动入口必须自己**发现运行时**（本 skill 的 `launch-dsh.ps1` 已实现）。
 3. **`.ps1` 必须带 UTF-8 BOM。** Windows PowerShell 5.1 对无 BOM 的脚本按 ANSI(GBK) 解析，
    文件里的中文注释/字符串会直接变成语法错误。写完脚本务必跑 `build/add-bom.cjs`。
+4. **从 pnpm store 直接运行 `dsh/lib/bin.js` 时必须给 Node 加 `--expose-internals`。**
+   否则 `cordis-plugin-loader` 会从自身的 store 路径解析裸插件名，导致几十到上百个
+   `ERR_MODULE_NOT_FOUND`，即使这些插件实际存在于 Web profile。`launch-dsh.ps1` 已内置该参数。
 
 ## 适用前提
 
@@ -164,7 +166,7 @@ powershell -ExecutionPolicy Bypass -File uninstall-from-dsh.ps1
 
 | 现象 | 先看 / 先做 |
 |---|---|
-| 双击图标没反应 | `<root>\logs\dsh-web.log`。若"找不到 dsh 运行时"→ `launch-dsh.ps1 -DiscoverOnly` |
+| 双击图标没反应 | 先看 `<root>\logs\dsh-web.log` 和 `dsh-web-server.err.log`。若"找不到 dsh 运行时"→ `launch-dsh.ps1 -DiscoverOnly`；若成批出现 `ERR_MODULE_NOT_FOUND`→确认 Node 启动参数含 `--expose-internals` |
 | 网站没打开 | 确认探活用 TCP 而不是 HTTP（首页 401 会让 `Invoke-WebRequest` 抛异常） |
 | 挂件没出现 | 刷新页面；确认 junction 还在；确认 `exports.inject = ["slots"]` |
 | 挂件"暂不可用" | `logs\dsh-web-server.err.log`；上游 `/api/billing` 是否可用 |
